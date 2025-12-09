@@ -1,77 +1,34 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from database import get_db_connection
 from mysql.connector.connection import MySQLConnection
 
-from .models import Student, Insert_Student, Delete_Student
+from .models import InsertStudent, DeleteStudent, Student
 from .services import (
-    get_students,
-    get_student_grades,
-    get_student,
-    insert_student,
-    update_student,
-    delete_student,
+    get_students, get_student, insert_student,
+    update_student, delete_student
 )
 
-router = APIRouter(prefix="/students")
-
+router = APIRouter(prefix="/students", tags=["Students"])
 
 @router.get("/")
 def api_get_students(conn: MySQLConnection = Depends(get_db_connection)):
-    try:
-        data = get_students(conn=conn)
-        return {"data": data}
-    except Exception as e:
-        return {"message": "Error occurred while executing function", "error": str(e)}
-
-
-@router.get("/grades")
-def api_get_student_grades(conn: MySQLConnection = Depends(get_db_connection)):
-    try:
-        data = get_student_grades(conn=conn)
-        return {"data": data}
-    except Exception as e:
-        return {"message": "Error occurred while executing function", "error": str(e)}
-
-
-@router.post("/")
-def api_insert_student(
-    payload: Insert_Student, conn: MySQLConnection = Depends(get_db_connection)
-):
-    try:
-        results = insert_student(conn=conn, payload=payload)
-        return {"message": f"Student inserted with id: {results}"}
-    except Exception as e:
-        return {"message": "Error occurred while executing function", "error": str(e)}
-
+    return get_students(conn)
 
 @router.post("/id")
-def api_get_student(
-    payload: Delete_Student, conn: MySQLConnection = Depends(get_db_connection)
-):
-    try:
-        data = get_student(conn=conn, payload=payload)
-        return {"data": data}
-    except Exception as e:
-        return {"message": "Error occurred while executing function", "error": str(e)}
+def api_get_student(payload: DeleteStudent, conn: MySQLConnection = Depends(get_db_connection)):
+    return get_student(conn, payload)
 
+@router.post("/")
+def api_insert_student(payload: InsertStudent, conn: MySQLConnection = Depends(get_db_connection)):
+    new_id = insert_student(conn, payload)
+    return {"message": "Student added", "id": new_id}
 
 @router.patch("/")
-def api_update_student(
-    payload: Student, conn: MySQLConnection = Depends(get_db_connection)
-):
-    try:
-        results = update_student(conn=conn, payload=payload)
-        return {"message": f"Student updated with id: {results}"}
-    except Exception as e:
-        return {"message": "Error occurred while executing function", "error": str(e)}
-
+def api_update_student(payload: Student, conn: MySQLConnection = Depends(get_db_connection)):
+    count = update_student(conn, payload)
+    return {"message": "Updated", "rows": count}
 
 @router.delete("/")
-def api_delete_student(
-    payload: Delete_Student, conn: MySQLConnection = Depends(get_db_connection)
-):
-    try:
-        results = delete_student(conn=conn, payload=payload)
-        return {"message": f"{results} row/s deleted"}
-    except Exception as e:
-        return {"message": "Error occurred while executing function", "error": str(e)}
+def api_delete_student(payload: DeleteStudent, conn: MySQLConnection = Depends(get_db_connection)):
+    count = delete_student(conn, payload)
+    return {"message": "Deleted", "rows": count}

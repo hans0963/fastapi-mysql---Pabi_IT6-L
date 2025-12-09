@@ -1,15 +1,15 @@
 from pydantic import BaseModel
+from datetime import date
 
+class InsertStudent(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    phone: str | None = None
+    registration_date: date
 
-class Insert_Student(BaseModel):
-    full_name: str
-    year_level: int
-    department: str
-
-
-class Delete_Student(BaseModel):
+class DeleteStudent(BaseModel):
     student_id: int
 
-
-class Student(Insert_Student, Delete_Student):
+class Student(InsertStudent, DeleteStudent):
     pass
