@@ -42,3 +42,19 @@ def update_fine_status(conn: MySQLConnection, payload: UpdateFineStatus):
         return cursor.rowcount
     finally:
         cursor.close()
+
+def get_all_fines(conn: MySQLConnection):
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM fines")
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+
+def get_fine_by_id(conn: MySQLConnection, fine_id: int):
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM fines WHERE fine_id = %s", (fine_id,))
+        return cursor.fetchone()
+    finally:
+        cursor.close()

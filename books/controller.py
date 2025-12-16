@@ -10,7 +10,7 @@ router = APIRouter(prefix="/books", tags=["Books"])
 def api_get_books(conn: MySQLConnection = Depends(get_db_connection)):
     return get_books(conn)
 
-@router.get("/{book_id}", response_model=Book)
+@router.post("/{book_id}", response_model=Book)
 def api_get_book(book_id: int, conn: MySQLConnection = Depends(get_db_connection)):
     book = get_book(conn, DeleteBook(book_id=book_id))
     if not book:

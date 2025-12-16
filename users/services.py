@@ -38,3 +38,51 @@ def delete_user(conn: MySQLConnection, payload: DeleteUser):
         return cursor.rowcount
     finally:
         cursor.close()
+
+def get_user_by_id(conn: MySQLConnection, user_id: int):
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("""
+            SELECT user_id, email, user_type, student_id, created_at, account_status
+            FROM users WHERE user_id=%s
+        """, (user_id,))
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+
+def update_user(conn: MySQLConnection, user_id: int, payload):
+    cursor = conn.cursor()
+    try:
+        fields = []
+        values = []
+
+        if payload.email:
+            fields.append("email=%s")
+            values.append(payload.email)
+
+        if payload.password:
+            hashed_pw = bcrypt.hashpw(
+                payload.password.encode("utf-8"),
+                bcrypt.gensalt()
+            ).decode("utf-8")
+            fields.append("password_hash=%s")
+            values.append(hashed_pw)
+
+        if payload.account_status:
+            fields.append("account_status=%s")
+            values.append(payload.account_status)
+
+        if not fields:
+            return 0
+
+        values.append(user_id)
+
+        query = f"""
+        UPDATE users SET {', '.join(fields)}
+        WHERE user_id=%s
+        """
+        cursor.execute(query, values)
+        conn.commit()
+        return cursor.rowcount
+    finally:
+        cursor.close()

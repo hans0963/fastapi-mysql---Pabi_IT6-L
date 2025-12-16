@@ -21,3 +21,8 @@ class User(BaseModel):
     student_id: int | None = None
     created_at: datetime | None = None
     account_status: str = "active"
+
+class UpdateUser(BaseModel):
+    email: EmailStr | None = None
+    password: str | None = None
+    account_status: str | None = None

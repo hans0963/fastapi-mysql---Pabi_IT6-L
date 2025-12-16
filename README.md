@@ -89,5 +89,6 @@ This project loads database credentials from a `.env` file.
 With your virtual environment active and the `.env` file in place, run the server using Uvicorn:
 
 ```bash
+.\venv\Scripts\activate
 uvicorn main:app --reload
 ```
